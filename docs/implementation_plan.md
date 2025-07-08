@@ -8,8 +8,8 @@
 
 ## 進捗状況
 - ✅ Phase 1: 基盤構築（完了）
-- ⏳ Phase 2: 音声処理機能（次の実装）
-- ⏳ Phase 3: テキスト処理機能
+- ✅ Phase 2: 音声処理機能（完了）
+- ⏳ Phase 3: テキスト処理機能（次の実装）
 - ⏳ Phase 4: コンテンツ生成機能 - タイトル
 - ⏳ Phase 5: コンテンツ生成機能 - 概要欄
 - ⏳ Phase 6: コンテンツ生成機能 - ブログ記事
@@ -21,7 +21,7 @@
 podscript-ai/
 ├── src/
 │   ├── __init__.py                ✅
-│   ├── audio_processor.py         # 音声処理モジュール
+│   ├── audio_processor.py         ✅ # 音声処理モジュール（実装済み）
 │   ├── text_processor.py          # テキスト処理モジュール
 │   ├── content_generator.py       # コンテンツ生成モジュール
 │   ├── data_manager.py            ✅ # データ管理モジュール（実装済み）
@@ -29,7 +29,7 @@ podscript-ai/
 │   └── app.py                     # Gradioアプリケーション
 ├── tests/
 │   ├── __init__.py                ✅
-│   ├── test_audio_processor.py    # 音声処理テスト
+│   ├── test_audio_processor.py    ✅ # 音声処理テスト（17テスト全合格）
 │   ├── test_text_processor.py     # テキスト処理テスト
 │   ├── test_content_generator.py  # コンテンツ生成テスト
 │   ├── test_data_manager.py       ✅ # データ管理テスト（11テスト全合格）
@@ -125,51 +125,74 @@ podscript-ai/
 - **開発環境**: pytest, flake8, python-dotenv設定完了
 - **コミット**: dca4de0 feat: Complete Phase 1 foundation implementation
 
-## Phase 2: 音声処理機能（2週目）
+## Phase 2: 音声処理機能（2週目）✅ 完了
 
-### 2.1 音声ファイル検証
-**作成内容:**
-- ファイル形式チェック（MP3, WAV, M4A）
-- ファイルサイズチェック（1GB以下）
-- 音声長さチェック（120分以下）
+### 2.1 音声ファイル検証 ✅
+**完了内容:**
+- ~~ファイル形式チェック（MP3, WAV, M4A）~~
+- ~~ファイルサイズチェック（1GB以下）~~
+- ~~音声長さチェック（120分以下）~~
+- ~~カスタム例外クラスの実装~~
+- ~~環境変数による制限値の設定~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-# test_audio_processor.py
-class TestAudioValidation:
-    def test_valid_file_formats(self):
-        """対応形式のファイルが受け入れられることを確認"""
-        
-    def test_invalid_file_format(self):
-        """非対応形式が拒否されることを確認"""
-        
-    def test_file_size_limit(self):
-        """1GB超のファイルが拒否されることを確認"""
-        
-    def test_duration_limit(self):
-        """120分超の音声が拒否されることを確認"""
+# test_audio_processor.py - TestAudioValidation
+✅ test_valid_file_formats: 対応形式のファイルが受け入れられることを確認
+✅ test_invalid_file_format: 非対応形式が拒否されることを確認
+✅ test_file_size_under_limit: 1GB以下のファイルが受け入れられることを確認
+✅ test_file_size_over_limit: 1GB超のファイルが拒否されることを確認
+✅ test_file_not_found: 存在しないファイルのエラー処理
+✅ test_corrupted_file: 破損ファイルのエラー処理
+# 6/6 テスト合格
 ```
 
-### 2.2 Whisper API統合
-**作成内容:**
-- Whisper API呼び出し実装
-- 言語指定機能
-- レスポンス処理
+### 2.2 音声長さ検証 ✅
+**完了内容:**
+- ~~mutagenによる音声メタデータ取得~~
+- ~~120分制限の検証~~
+- ~~エラーハンドリング~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-class TestWhisperIntegration:
-    def test_transcribe_audio(self, mocker):
-        """音声が正しく文字起こしされることを確認"""
-        mock_response = {"text": "テスト音声の内容"}
-        mocker.patch('openai.Audio.transcribe', return_value=mock_response)
-        
-    def test_language_specification(self, mocker):
-        """言語指定が正しく動作することを確認"""
-        
-    def test_api_error_handling(self, mocker):
-        """API エラーが適切に処理されることを確認"""
+# test_audio_processor.py - TestAudioDuration
+✅ test_duration_under_limit: 120分以下の音声が受け入れられることを確認
+✅ test_duration_over_limit: 120分超の音声が拒否されることを確認
+✅ test_duration_extraction_error: 長さ取得エラーの処理
+# 3/3 テスト合格
 ```
+
+### 2.3 Whisper API統合 ✅
+**完了内容:**
+- ~~Whisper API呼び出し実装~~
+- ~~言語指定機能（ja/en対応）~~
+- ~~リトライ機構（指数バックオフ）~~
+- ~~タイムアウト処理~~
+- ~~エラーハンドリング~~
+
+**テスト結果:**
+```python
+# test_audio_processor.py - TestWhisperIntegration
+✅ test_transcribe_audio_success: 音声が正しく文字起こしされることを確認
+✅ test_transcribe_with_language: 言語指定が正しく動作することを確認
+✅ test_transcribe_api_error: APIエラーが適切に処理されることを確認
+✅ test_transcribe_timeout: タイムアウト処理
+✅ test_transcribe_empty_audio: 無音/空の音声ファイル処理
+✅ test_transcribe_retry_mechanism: リトライ機構の動作確認
+✅ test_transcribe_file_validation_fails: ファイル検証失敗時の処理
+✅ test_transcribe_duration_validation_fails: 音声長さ検証失敗時の処理
+# 8/8 テスト合格
+```
+
+### Phase 2 成果サマリー
+- **総テスト数**: 17個（全合格）
+- **テストカバレッジ**: 99%（audio_processor.py）
+- **実装機能**: 
+  - ファイル検証（形式、サイズ、存在確認）
+  - 音声長さ検証（mutagen統合）
+  - Whisper API統合（リトライ機構付き）
+  - カスタム例外クラス（4種類）
+- **コミット**: af98cc7 feat: Implement Phase 2 audio processing functionality
 
 ## Phase 3: テキスト処理機能（3週目）
 
@@ -380,17 +403,35 @@ class TestEndToEnd:
 4. **CIパイプラインの早期構築（GitHub Actions）**
 5. **定期的なコードレビュー（セルフレビューも含む）**
 
+## 現在までの進捗サマリー
+
+### 累計成果（Phase 1-2）
+- **総テスト数**: 41個（全合格）
+  - Phase 1: 24個（API Client: 10, Data Manager: 11, Project Setup: 3）
+  - Phase 2: 17個（Audio Validation: 6, Duration: 3, Whisper Integration: 8）
+- **テストカバレッジ**: 90%（全体）
+  - api_client.py: 88%
+  - data_manager.py: 85%
+  - audio_processor.py: 99%
+- **実装モジュール**: 3個
+  - api_client.py（シングルトン、リトライ機構）
+  - data_manager.py（JSON永続化、履歴管理）
+  - audio_processor.py（ファイル検証、Whisper統合）
+- **開発期間**: 2週間相当の作業を完了
+
 ## 使用技術スタック
 
 ### 確定済み
-- **言語**: Python 3.8+
+- **言語**: Python 3.13.5
 - **テストフレームワーク**: pytest 8.4.1
 - **モック**: pytest-mock 3.14.1
+- **カバレッジ**: pytest-cov 6.2.1
 - **APIクライアント**: openai 1.93.2
 - **Linter**: flake8 7.3.0
 - **環境変数管理**: python-dotenv 1.1.1
+- **音声メタデータ**: mutagen 1.47.0
+- **音声処理**: pydub 0.25.1
 
 ### 予定
 - **Web UI**: gradio
-- **音声処理**: pydub, mutagen
 - **CI/CD**: GitHub Actions
