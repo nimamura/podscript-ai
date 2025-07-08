@@ -1,0 +1,16 @@
+# Core dependencies
+openai>=1.12.0          # OpenAI API (Whisper & GPT)
+gradio>=4.19.2          # Web UI
+pydub>=0.25.1           # Audio file handling
+mutagen>=1.47.0         # Audio metadata
+
+# Testing dependencies
+pytest>=8.0.0           # Test framework
+pytest-mock>=3.12.0     # Mocking
+pytest-cov>=4.1.0       # Coverage reporting
+pytest-watch>=4.2.0     # Auto test runner
+
+# Development dependencies
+python-dotenv>=1.0.1    # Environment variables
+black>=24.1.1           # Code formatting
+flake8>=7.0.0           # Linting

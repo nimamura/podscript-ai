@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 100
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    env,
+    .pytest_cache,
+    .vscode,
+    .idea
+ignore = 
+    W293,
+    W291,
+    E501,
+    W292,
+    F841
