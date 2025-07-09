@@ -326,7 +326,7 @@ podscript-ai/
   - リトライ機構（最大2回）
   - 複数のタイトル抽出パターン対応
   - カスタム例外クラス（3種類）
-- **コミット**: [後で追加]
+- **コミット**: 5d0bef7 feat: Implement Phase 4 content generation - title generation
 
 ## Phase 5: コンテンツ生成機能 - 概要欄（5週目）
 
