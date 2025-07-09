@@ -9,8 +9,8 @@
 ## 進捗状況
 - ✅ Phase 1: 基盤構築（完了）
 - ✅ Phase 2: 音声処理機能（完了）
-- ⏳ Phase 3: テキスト処理機能（次の実装）
-- ⏳ Phase 4: コンテンツ生成機能 - タイトル
+- ✅ Phase 3: テキスト処理機能（完了）
+- ⏳ Phase 4: コンテンツ生成機能 - タイトル（次の実装）
 - ⏳ Phase 5: コンテンツ生成機能 - 概要欄
 - ⏳ Phase 6: コンテンツ生成機能 - ブログ記事
 - ⏳ Phase 7: Gradio UI実装
@@ -22,7 +22,7 @@ podscript-ai/
 ├── src/
 │   ├── __init__.py                ✅
 │   ├── audio_processor.py         ✅ # 音声処理モジュール（実装済み）
-│   ├── text_processor.py          # テキスト処理モジュール
+│   ├── text_processor.py          ✅ # テキスト処理モジュール（実装済み）
 │   ├── content_generator.py       # コンテンツ生成モジュール
 │   ├── data_manager.py            ✅ # データ管理モジュール（実装済み）
 │   ├── api_client.py              ✅ # API通信モジュール（実装済み）
@@ -30,7 +30,7 @@ podscript-ai/
 ├── tests/
 │   ├── __init__.py                ✅
 │   ├── test_audio_processor.py    ✅ # 音声処理テスト（17テスト全合格）
-│   ├── test_text_processor.py     # テキスト処理テスト
+│   ├── test_text_processor.py     ✅ # テキスト処理テスト（21テスト全合格）
 │   ├── test_content_generator.py  # コンテンツ生成テスト
 │   ├── test_data_manager.py       ✅ # データ管理テスト（11テスト全合格）
 │   ├── test_api_client.py         ✅ # APIクライアントテスト（10テスト全合格）
@@ -194,43 +194,75 @@ podscript-ai/
   - カスタム例外クラス（4種類）
 - **コミット**: af98cc7 feat: Implement Phase 2 audio processing functionality
 
-## Phase 3: テキスト処理機能（3週目）
+## Phase 3: テキスト処理機能（3週目）✅ 完了
 
-### 3.1 原稿ファイル処理
-**作成内容:**
-- TXTファイル読み込み
-- UTF-8エンコーディング処理
-- 原稿優先ロジック
+### 3.1 原稿ファイル処理 ✅
+**完了内容:**
+- ~~TXTファイル読み込み~~
+- ~~UTF-8エンコーディング処理（BOM対応）~~
+- ~~原稿優先ロジック~~
+- ~~ファイル形式検証~~
+- ~~カスタム例外クラス（3種類）~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-# test_text_processor.py
-class TestManuscriptProcessing:
-    def test_read_txt_file(self):
-        """TXTファイルが正しく読み込まれることを確認"""
-        
-    def test_encoding_handling(self):
-        """UTF-8エンコーディングが正しく処理されることを確認"""
-        
-    def test_manuscript_priority(self):
-        """原稿がある場合、音声処理をスキップすることを確認"""
+# test_text_processor.py - TestManuscriptProcessing
+✅ test_read_txt_file: TXTファイルが正しく読み込まれることを確認
+✅ test_encoding_handling: UTF-8エンコーディングが正しく処理されることを確認
+✅ test_manuscript_priority: 原稿がある場合、音声処理をスキップすることを確認
+✅ test_invalid_file_format: 非対応形式のファイルが拒否されることを確認
+✅ test_file_not_found: 存在しないファイルのエラー処理
+✅ test_empty_file: 空のファイルの処理
+✅ test_large_file_handling: 大きなファイルの処理
+✅ test_read_permission_error: 読み取り権限がない場合のエラー処理
+# 8/8 テスト合格
 ```
 
-### 3.2 テキスト前処理
-**作成内容:**
-- テキストクリーニング
-- 文字数カウント
-- 言語検出（オプション）
+### 3.2 テキスト前処理 ✅
+**完了内容:**
+- ~~テキストクリーニング（空白・改行の正規化）~~
+- ~~文字数カウント~~
+- ~~言語検出（日本語/英語/混合）~~
+- ~~URL除去機能~~
+- ~~テキスト検証~~
+- ~~メタデータ抽出~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-class TestTextPreprocessing:
-    def test_text_cleaning(self):
-        """テキストが適切にクリーニングされることを確認"""
-        
-    def test_character_count(self):
-        """文字数が正しくカウントされることを確認"""
+# test_text_processor.py - TestTextPreprocessing
+✅ test_text_cleaning: テキストが適切にクリーニングされることを確認
+✅ test_character_count: 文字数が正しくカウントされることを確認
+✅ test_text_preprocessing_pipeline: 前処理パイプライン全体の動作確認
+✅ test_remove_urls: URLの除去が正しく動作することを確認
+✅ test_normalize_whitespace: 空白の正規化が正しく動作することを確認
+✅ test_text_validation: テキストの検証機能
+✅ test_extract_metadata: テキストからメタデータを抽出
+# 7/7 テスト合格
+
+# test_text_processor.py - TestLanguageDetection
+✅ test_detect_japanese: 日本語の検出
+✅ test_detect_english: 英語の検出
+✅ test_detect_mixed_language: 混合言語の検出（日本語優先）
+✅ test_detect_unknown_language: 未知の言語や判定不能な場合
+# 4/4 テスト合格
+
+# test_text_processor.py - TestTextProcessorIntegration
+✅ test_process_manuscript_file: 原稿ファイルの完全な処理フロー
+✅ test_process_with_encoding_options: 異なるエンコーディングオプションでの処理
+# 2/2 テスト合格
 ```
+
+### Phase 3 成果サマリー
+- **総テスト数**: 21個（全合格）
+- **テストカバレッジ**: 93%（text_processor.py）
+- **実装機能**: 
+  - 原稿ファイル読み込み（TXT形式、UTF-8対応）
+  - テキスト前処理（クリーニング、正規化）
+  - URL除去機能
+  - 言語検出（日本語/英語判定）
+  - メタデータ抽出（文字数、行数、段落数、読了時間）
+  - カスタム例外クラス（3種類）
+- **コミット**: eb2ba1b feat: Implement Phase 3 text processing functionality
 
 ## Phase 4: コンテンツ生成機能 - タイトル（4週目）
 
@@ -405,19 +437,22 @@ class TestEndToEnd:
 
 ## 現在までの進捗サマリー
 
-### 累計成果（Phase 1-2）
-- **総テスト数**: 41個（全合格）
+### 累計成果（Phase 1-3）
+- **総テスト数**: 62個（全合格）
   - Phase 1: 24個（API Client: 10, Data Manager: 11, Project Setup: 3）
   - Phase 2: 17個（Audio Validation: 6, Duration: 3, Whisper Integration: 8）
-- **テストカバレッジ**: 90%（全体）
+  - Phase 3: 21個（Manuscript: 8, Preprocessing: 7, Language: 4, Integration: 2）
+- **テストカバレッジ**: 91%（全体）
   - api_client.py: 88%
   - data_manager.py: 85%
   - audio_processor.py: 99%
-- **実装モジュール**: 3個
+  - text_processor.py: 93%
+- **実装モジュール**: 4個
   - api_client.py（シングルトン、リトライ機構）
   - data_manager.py（JSON永続化、履歴管理）
   - audio_processor.py（ファイル検証、Whisper統合）
-- **開発期間**: 2週間相当の作業を完了
+  - text_processor.py（原稿処理、前処理、言語検出）
+- **開発期間**: 3週間相当の作業を完了
 
 ## 使用技術スタック
 
