@@ -169,13 +169,13 @@ class TestWhisperIntegration:
         mock_response.text = "これはテスト音声の内容です。"
         
         # Mock the API client's transcribe method
-        audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
+        audio_processor.api_client.client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             result = audio_processor.transcribe_audio('test.mp3')
             
         assert result == "これはテスト音声の内容です。"
-        audio_processor.api_client.audio.transcriptions.create.assert_called_once()
+        audio_processor.api_client.client.audio.transcriptions.create.assert_called_once()
     
     def test_transcribe_with_language(self, audio_processor, mock_file_validation,
                                       mock_duration_validation):
@@ -183,13 +183,13 @@ class TestWhisperIntegration:
         mock_response = Mock()
         mock_response.text = "This is test audio content."
         
-        audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
+        audio_processor.api_client.client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             result = audio_processor.transcribe_audio('test.mp3', language='en')
             
         # Check that language parameter was passed
-        call_args = audio_processor.api_client.audio.transcriptions.create.call_args
+        call_args = audio_processor.api_client.client.audio.transcriptions.create.call_args
         assert call_args[1]['language'] == 'en'
         assert result == "This is test audio content."
     
@@ -197,7 +197,7 @@ class TestWhisperIntegration:
                                   mock_duration_validation):
         """APIエラーが適切に処理されることを確認"""
         # Mock API error
-        audio_processor.api_client.audio.transcriptions.create.side_effect = Exception("API Error")
+        audio_processor.api_client.client.audio.transcriptions.create.side_effect = Exception("API Error")
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             with pytest.raises(AudioProcessingError) as exc_info:
@@ -208,7 +208,7 @@ class TestWhisperIntegration:
                                 mock_duration_validation):
         """タイムアウト処理"""
         # Mock timeout error
-        audio_processor.api_client.audio.transcriptions.create.side_effect = TimeoutError("Request timed out")
+        audio_processor.api_client.client.audio.transcriptions.create.side_effect = TimeoutError("Request timed out")
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             with pytest.raises(AudioProcessingError) as exc_info:
@@ -221,7 +221,7 @@ class TestWhisperIntegration:
         mock_response = Mock()
         mock_response.text = ""  # Empty transcription
         
-        audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
+        audio_processor.api_client.client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             result = audio_processor.transcribe_audio('test.mp3')
@@ -235,7 +235,7 @@ class TestWhisperIntegration:
         mock_response.text = "Success after retry"
         
         # First call fails, second succeeds
-        audio_processor.api_client.audio.transcriptions.create.side_effect = [
+        audio_processor.api_client.client.audio.transcriptions.create.side_effect = [
             Exception("Temporary error"),
             mock_response
         ]
@@ -245,7 +245,7 @@ class TestWhisperIntegration:
                 result = audio_processor.transcribe_audio('test.mp3')
                 
         assert result == "Success after retry"
-        assert audio_processor.api_client.audio.transcriptions.create.call_count == 2
+        assert audio_processor.api_client.client.audio.transcriptions.create.call_count == 2
     
     def test_transcribe_file_validation_fails(self, audio_processor):
         """ファイル検証失敗時の処理"""

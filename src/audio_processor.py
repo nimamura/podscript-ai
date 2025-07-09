@@ -201,7 +201,7 @@ class AudioProcessor:
                         params['language'] = language
                     
                     # Call Whisper API
-                    response = self.api_client.audio.transcriptions.create(**params)
+                    response = self.api_client.client.audio.transcriptions.create(**params)
                     
                     return response.text
                     
