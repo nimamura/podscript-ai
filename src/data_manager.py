@@ -163,6 +163,27 @@ class DataManager:
         
         return descriptions[:limit]
     
+    def get_recent_blog_posts(self, limit: int = 5) -> List[str]:
+        """
+        Get recent blog posts for style learning
+        
+        Args:
+            limit: Number of blog posts to return
+            
+        Returns:
+            List of recent blog posts
+        """
+        histories = self.get_all_histories()
+        blog_posts = []
+        
+        for history in histories:
+            if 'blog_post' in history and history['blog_post']:
+                blog_posts.append(history['blog_post'])
+                if len(blog_posts) >= limit:
+                    break
+        
+        return blog_posts[:limit]
+    
     def export_histories(self, export_path: str) -> None:
         """
         Export all histories to a single file

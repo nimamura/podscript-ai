@@ -554,3 +554,201 @@ Generate a podcast episode description {language_instruction} from the following
             raise APIResponseError("Invalid response structure")
         except Exception as e:
             raise APIResponseError(f"Failed to parse response: {e}")
+    
+    def generate_blog_post(
+        self,
+        transcript: str,
+        language: Optional[str] = 'ja',
+        include_history: bool = False
+    ) -> str:
+        """
+        Generate blog post for the podcast episode
+        
+        Args:
+            transcript: Transcribed text from podcast
+            language: Output language ('ja', 'en', or None for auto-detect)
+            include_history: Whether to include past blog posts for style learning
+            
+        Returns:
+            Blog post text in Markdown format (1000-2000 characters)
+            
+        Raises:
+            ValueError: If transcript is empty
+            ContentGenerationError: If generation fails or blog post is invalid length
+        """
+        # Validate transcript
+        if not transcript or not transcript.strip():
+            raise ValueError("Transcript cannot be empty")
+        
+        # Check transcript length
+        if len(transcript) > self.MAX_TRANSCRIPT_LENGTH:
+            raise PromptTooLongError(
+                f"Transcript too long: {len(transcript)} characters "
+                f"(max: {self.MAX_TRANSCRIPT_LENGTH})"
+            )
+        
+        # Auto-detect language if not specified
+        if language is None:
+            language = self._detect_language(transcript)
+        
+        # Build prompt
+        if include_history:
+            prompt = self._build_blog_prompt_with_history(transcript, language, include_history)
+        else:
+            prompt = self._build_blog_prompt(transcript, language)
+        
+        # Generate blog post with retry
+        try:
+            # Use higher max_tokens for blog posts
+            old_max_tokens = self.DEFAULT_MAX_TOKENS
+            self.DEFAULT_MAX_TOKENS = 2000  # Increase for blog posts
+            
+            response = self._generate_with_retry(prompt)
+            blog_post = self._extract_blog_from_response(response)
+            
+            # Restore original max_tokens
+            self.DEFAULT_MAX_TOKENS = old_max_tokens
+            
+            # Validate length
+            if len(blog_post) < 1000:
+                raise ContentGenerationError(
+                    f"Blog post too short: {len(blog_post)} characters (min: 1000)"
+                )
+            if len(blog_post) > 2000:
+                raise ContentGenerationError(
+                    f"Blog post too long: {len(blog_post)} characters (max: 2000)"
+                )
+            
+            return blog_post
+            
+        except TimeoutError as e:
+            raise ContentGenerationError(f"Request timeout: {e}")
+        except ContentGenerationError:
+            raise
+        except Exception as e:
+            raise ContentGenerationError(f"Failed to generate blog post: {e}")
+    
+    def _build_blog_prompt(self, transcript: str, language: str) -> str:
+        """
+        Build prompt for blog post generation
+        
+        Args:
+            transcript: Podcast transcript
+            language: Output language
+            
+        Returns:
+            Formatted prompt
+        """
+        language_instruction = {
+            'ja': "日本語で",
+            'en': "in English"
+        }.get(language, language)
+        
+        prompt = f"""
+Generate a blog post {language_instruction} from the following podcast transcript.
+
+要件:
+- 1000-2000文字の範囲で作成
+- Markdown形式で出力
+- 見出し構造を含む（#, ##, ### を使用）
+- 導入部、主要トピック、まとめを含む
+- 読みやすく構造化された内容
+- 具体例や箇条書きを活用
+
+文字起こし / Transcript:
+{transcript}
+
+ブログ記事 / Blog post:
+"""
+        return prompt.strip()
+    
+    def _build_blog_prompt_with_history(
+        self,
+        transcript: str,
+        language: str,
+        include_history: bool = True
+    ) -> str:
+        """
+        Build prompt with past blog posts for style learning
+        
+        Args:
+            transcript: Podcast transcript
+            language: Output language
+            include_history: Whether to include history
+            
+        Returns:
+            Formatted prompt with style examples
+        """
+        # Get base prompt
+        base_prompt = self._build_blog_prompt(transcript, language)
+        
+        if not include_history:
+            return base_prompt
+        
+        # Get past blog posts
+        try:
+            past_blogs = self._get_past_blog_posts(limit=2)
+        except Exception as e:
+            logger.warning(f"Failed to get past blog posts: {e}")
+            # Continue without history
+            return base_prompt
+        
+        if not past_blogs:
+            return base_prompt
+        
+        # Add style learning section
+        style_section = "\n\n過去のブログ記事例（文体の参考に）:\n"
+        for i, blog in enumerate(past_blogs, 1):
+            # Truncate long blog posts to save tokens
+            truncated = blog[:500] + "..." if len(blog) > 500 else blog
+            style_section += f"\n例{i}:\n{truncated}\n"
+        
+        style_instruction = "\n上記の過去のブログ記事の文体やスタイルを参考にしてください。"
+        
+        # Insert style section before the requirements
+        parts = base_prompt.split("\n要件:")
+        if len(parts) == 2:
+            prompt = parts[0] + style_section + style_instruction + "\n要件:" + parts[1]
+        else:
+            # Fallback: append at the beginning
+            prompt = style_section + style_instruction + "\n\n" + base_prompt
+        
+        return prompt
+    
+    def _get_past_blog_posts(self, limit: int = 2) -> List[str]:
+        """
+        Get past blog posts from data manager
+        
+        Args:
+            limit: Maximum number of blog posts to retrieve
+            
+        Returns:
+            List of past blog posts
+        """
+        return self.data_manager.get_recent_blog_posts(limit=limit)
+    
+    def _extract_blog_from_response(self, response: Any) -> str:
+        """
+        Extract blog post from API response
+        
+        Args:
+            response: API response object
+            
+        Returns:
+            Extracted blog post text
+            
+        Raises:
+            APIResponseError: If response format is invalid
+        """
+        try:
+            content = response.choices[0].message.content
+            
+            # Clean up the blog post
+            blog_post = content.strip()
+            
+            return blog_post
+            
+        except AttributeError:
+            raise APIResponseError("Invalid response structure")
+        except Exception as e:
+            raise APIResponseError(f"Failed to parse response: {e}")

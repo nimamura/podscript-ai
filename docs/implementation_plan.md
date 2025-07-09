@@ -12,8 +12,8 @@
 - ✅ Phase 3: テキスト処理機能（完了）
 - ✅ Phase 4: コンテンツ生成機能 - タイトル（完了）
 - ✅ Phase 5: コンテンツ生成機能 - 概要欄（完了）
-- ⏳ Phase 6: コンテンツ生成機能 - ブログ記事（次の実装）
-- ⏳ Phase 7: Gradio UI実装
+- ✅ Phase 6: コンテンツ生成機能 - ブログ記事（完了）
+- ⏳ Phase 7: Gradio UI実装（次の実装）
 - ⏳ Phase 8: 統合テストとリファクタリング
 
 ## プロジェクト構成
@@ -384,29 +384,65 @@ podscript-ai/
   - DataManager: get_recent_descriptions
 - **コミット**: (保留中)
 
-## Phase 6: コンテンツ生成機能 - ブログ記事（6週目）
+## Phase 6: コンテンツ生成機能 - ブログ記事（6週目）✅ 完了
 
-### 6.1 ブログ記事生成
-**作成内容:**
-- ブログ記事生成ロジック
-- Markdown形式出力
-- 見出し構造の生成
+### 6.1 ブログ記事生成基礎 ✅
+**完了内容:**
+- ~~ブログ記事生成ロジック（generate_blog_postメソッド）~~
+- ~~Markdown形式出力~~
+- ~~見出し構造の生成~~
+- ~~文字数制御（1000-2000文字）~~
+- ~~プロンプト構築（_build_blog_prompt）~~
+- ~~言語自動検出対応~~
+- ~~エラーハンドリング~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-class TestBlogGeneration:
-    def test_generate_blog_post(self, mocker):
-        """ブログ記事が生成されることを確認"""
-        
-    def test_markdown_format(self):
-        """Markdown形式で出力されることを確認"""
-        
-    def test_heading_structure(self):
-        """適切な見出し構造があることを確認"""
-        
-    def test_word_count_range(self):
-        """1000-2000文字の範囲内であることを確認"""
+# test_content_generator.py - TestBlogGeneration
+✅ test_generate_blog_post: ブログ記事が生成されることを確認
+✅ test_markdown_format: Markdown形式で出力されることを確認
+✅ test_heading_structure: 適切な見出し構造があることを確認
+✅ test_word_count_range: 1000-2000文字の範囲内であることを確認
+✅ test_prompt_construction_for_blog: ブログ記事用プロンプトが正しく構築されることを確認
+✅ test_language_handling_for_blog: 出力言語が正しく反映されることを確認
+✅ test_empty_transcript_handling_for_blog: 空の文字起こしテキストの処理
+✅ test_api_error_handling_for_blog: APIエラー処理
+✅ test_length_validation_for_blog: 生成されたブログ記事の長さ検証
+✅ test_past_blogs_reference: 過去のブログ記事を参照した文体学習
+# 10/10 テスト合格
 ```
+
+### 6.2 過去データ参照 ✅
+**完了内容:**
+- ~~DataManagerにget_recent_blog_postsメソッド追加~~
+- ~~過去のブログ記事を参照したプロンプト構築（_build_blog_prompt_with_history）~~
+- ~~文体学習機能~~
+- ~~履歴エラーのグレースフルハンドリング~~
+
+**テスト結果:**
+```python
+# test_content_generator.py - TestBlogIntegration
+✅ test_complete_blog_generation_flow: 完全なブログ記事生成フローのテスト
+✅ test_retry_mechanism_for_blog: リトライ機構のテスト
+# 2/2 テスト合格
+```
+
+### Phase 6 成果サマリー
+- **総テスト数**: 12個（全合格）
+- **テストカバレッジ**: 80%（content_generator.py）
+- **実装機能**: 
+  - ブログ記事生成（1000-2000文字制限）
+  - Markdown形式出力（見出し構造、リスト、太字等）
+  - GPT API統合（generate_blog_postメソッド）
+  - 過去のブログ記事による文体学習
+  - 言語自動検出（日本語/英語）
+  - 文字数検証とエラーハンドリング
+  - リトライ機構（既存の_generate_with_retryを再利用）
+  - max_tokens動的調整（ブログ記事用に2000トークンに増加）
+- **追加メソッド**:
+  - ContentGenerator: generate_blog_post, _build_blog_prompt, _build_blog_prompt_with_history, _get_past_blog_posts, _extract_blog_from_response
+  - DataManager: get_recent_blog_posts
+- **コミット**: (保留中)
 
 ## Phase 7: Gradio UI実装（7-8週目）
 
@@ -498,26 +534,27 @@ class TestEndToEnd:
 
 ## 現在までの進捗サマリー
 
-### 累計成果（Phase 1-5）
-- **総テスト数**: 91個（全合格）
+### 累計成果（Phase 1-6）
+- **総テスト数**: 103個（全合格）
   - Phase 1: 24個（API Client: 10, Data Manager: 11, Project Setup: 3）
   - Phase 2: 17個（Audio Validation: 6, Duration: 3, Whisper Integration: 8）
   - Phase 3: 21個（Manuscript: 8, Preprocessing: 7, Language: 4, Integration: 2）
   - Phase 4: 18個（Title Generation: 9, History: 5, Integration: 4）
   - Phase 5: 11個（Description Generation: 9, Integration: 2）
-- **テストカバレッジ**: 86%（全体）
+  - Phase 6: 12個（Blog Generation: 10, Integration: 2）
+- **テストカバレッジ**: 84%（全体）
   - api_client.py: 88%
-  - data_manager.py: 78%
+  - data_manager.py: 72%
   - audio_processor.py: 99%
   - text_processor.py: 93%
   - content_generator.py: 80%
 - **実装モジュール**: 5個
   - api_client.py（シングルトン、リトライ機構）
-  - data_manager.py（JSON永続化、履歴管理、概要欄履歴）
+  - data_manager.py（JSON永続化、履歴管理、タイトル/概要欄/ブログ記事履歴）
   - audio_processor.py（ファイル検証、Whisper統合）
   - text_processor.py（原稿処理、前処理、言語検出）
-  - content_generator.py（タイトル生成、概要欄生成、文体学習）
-- **開発期間**: 5週間相当の作業を完了
+  - content_generator.py（タイトル生成、概要欄生成、ブログ記事生成、文体学習）
+- **開発期間**: 6週間相当の作業を完了
 
 ## 使用技術スタック
 
