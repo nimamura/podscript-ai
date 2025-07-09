@@ -11,8 +11,8 @@
 - ✅ Phase 2: 音声処理機能（完了）
 - ✅ Phase 3: テキスト処理機能（完了）
 - ✅ Phase 4: コンテンツ生成機能 - タイトル（完了）
-- ⏳ Phase 5: コンテンツ生成機能 - 概要欄（次の実装）
-- ⏳ Phase 6: コンテンツ生成機能 - ブログ記事
+- ✅ Phase 5: コンテンツ生成機能 - 概要欄（完了）
+- ⏳ Phase 6: コンテンツ生成機能 - ブログ記事（次の実装）
 - ⏳ Phase 7: Gradio UI実装
 - ⏳ Phase 8: 統合テストとリファクタリング
 
@@ -328,26 +328,61 @@ podscript-ai/
   - カスタム例外クラス（3種類）
 - **コミット**: 5d0bef7 feat: Implement Phase 4 content generation - title generation
 
-## Phase 5: コンテンツ生成機能 - 概要欄（5週目）
+## Phase 5: コンテンツ生成機能 - 概要欄（5週目）✅ 完了
 
-### 5.1 概要欄生成基礎
-**作成内容:**
-- 概要欄生成ロジック
-- 文字数制御（200-400文字）
-- 構成テンプレート（導入・要約・締め）
+### 5.1 概要欄生成基礎 ✅
+**完了内容:**
+- ~~概要欄生成ロジック（generate_descriptionメソッド）~~
+- ~~文字数制御（200-400文字）~~
+- ~~構成テンプレート（導入・要約・締め）~~
+- ~~プロンプト構築（_build_description_prompt）~~
+- ~~言語自動検出対応~~
+- ~~エラーハンドリング~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-class TestDescriptionGeneration:
-    def test_generate_description(self, mocker):
-        """概要欄が生成されることを確認"""
-        
-    def test_character_limit(self):
-        """文字数が200-400の範囲内であることを確認"""
-        
-    def test_structure_compliance(self):
-        """指定された構成に従っていることを確認"""
+# test_content_generator.py - TestDescriptionGeneration
+✅ test_generate_description: 概要欄が生成されることを確認
+✅ test_character_limit: 文字数が200-400の範囲内であることを確認
+✅ test_structure_compliance: 指定された構成に従っていることを確認
+✅ test_prompt_construction_for_description: 概要欄用プロンプトが正しく構築されることを確認
+✅ test_language_handling_for_description: 出力言語が正しく反映されることを確認
+✅ test_empty_transcript_handling_for_description: 空の文字起こしテキストの処理
+✅ test_api_error_handling_for_description: APIエラー処理
+✅ test_length_validation: 生成された概要欄の長さ検証
+✅ test_past_descriptions_reference: 過去の概要欄を参照した文体学習
+# 9/9 テスト合格
 ```
+
+### 5.2 過去データ参照 ✅
+**完了内容:**
+- ~~DataManagerにget_recent_descriptionsメソッド追加~~
+- ~~過去の概要欄を参照したプロンプト構築（_build_description_prompt_with_history）~~
+- ~~文体学習機能~~
+- ~~履歴エラーのグレースフルハンドリング~~
+
+**テスト結果:**
+```python
+# test_content_generator.py - TestDescriptionIntegration
+✅ test_complete_description_generation_flow: 完全な概要欄生成フローのテスト
+✅ test_retry_mechanism_for_description: リトライ機構のテスト
+# 2/2 テスト合格
+```
+
+### Phase 5 成果サマリー
+- **総テスト数**: 11個（全合格）
+- **テストカバレッジ**: 80%（content_generator.py）
+- **実装機能**: 
+  - 概要欄生成（200-400文字制限）
+  - GPT API統合（generate_descriptionメソッド）
+  - 過去の概要欄による文体学習
+  - 言語自動検出（日本語/英語）
+  - 文字数検証とエラーハンドリング
+  - リトライ機構（既存の_generate_with_retryを再利用）
+- **追加メソッド**:
+  - ContentGenerator: generate_description, _build_description_prompt, _build_description_prompt_with_history, _get_past_descriptions, _extract_description_from_response
+  - DataManager: get_recent_descriptions
+- **コミット**: (保留中)
 
 ## Phase 6: コンテンツ生成機能 - ブログ記事（6週目）
 
@@ -463,25 +498,26 @@ class TestEndToEnd:
 
 ## 現在までの進捗サマリー
 
-### 累計成果（Phase 1-4）
-- **総テスト数**: 80個（全合格）
+### 累計成果（Phase 1-5）
+- **総テスト数**: 91個（全合格）
   - Phase 1: 24個（API Client: 10, Data Manager: 11, Project Setup: 3）
   - Phase 2: 17個（Audio Validation: 6, Duration: 3, Whisper Integration: 8）
   - Phase 3: 21個（Manuscript: 8, Preprocessing: 7, Language: 4, Integration: 2）
   - Phase 4: 18個（Title Generation: 9, History: 5, Integration: 4）
-- **テストカバレッジ**: 89%（全体）
+  - Phase 5: 11個（Description Generation: 9, Integration: 2）
+- **テストカバレッジ**: 86%（全体）
   - api_client.py: 88%
-  - data_manager.py: 85%
+  - data_manager.py: 78%
   - audio_processor.py: 99%
   - text_processor.py: 93%
-  - content_generator.py: 82%
+  - content_generator.py: 80%
 - **実装モジュール**: 5個
   - api_client.py（シングルトン、リトライ機構）
-  - data_manager.py（JSON永続化、履歴管理）
+  - data_manager.py（JSON永続化、履歴管理、概要欄履歴）
   - audio_processor.py（ファイル検証、Whisper統合）
   - text_processor.py（原稿処理、前処理、言語検出）
-  - content_generator.py（タイトル生成、文体学習）
-- **開発期間**: 4週間相当の作業を完了
+  - content_generator.py（タイトル生成、概要欄生成、文体学習）
+- **開発期間**: 5週間相当の作業を完了
 
 ## 使用技術スタック
 
