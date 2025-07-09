@@ -10,8 +10,8 @@
 - ✅ Phase 1: 基盤構築（完了）
 - ✅ Phase 2: 音声処理機能（完了）
 - ✅ Phase 3: テキスト処理機能（完了）
-- ⏳ Phase 4: コンテンツ生成機能 - タイトル（次の実装）
-- ⏳ Phase 5: コンテンツ生成機能 - 概要欄
+- ✅ Phase 4: コンテンツ生成機能 - タイトル（完了）
+- ⏳ Phase 5: コンテンツ生成機能 - 概要欄（次の実装）
 - ⏳ Phase 6: コンテンツ生成機能 - ブログ記事
 - ⏳ Phase 7: Gradio UI実装
 - ⏳ Phase 8: 統合テストとリファクタリング
@@ -23,7 +23,7 @@ podscript-ai/
 │   ├── __init__.py                ✅
 │   ├── audio_processor.py         ✅ # 音声処理モジュール（実装済み）
 │   ├── text_processor.py          ✅ # テキスト処理モジュール（実装済み）
-│   ├── content_generator.py       # コンテンツ生成モジュール
+│   ├── content_generator.py       ✅ # コンテンツ生成モジュール（実装済み - タイトル生成）
 │   ├── data_manager.py            ✅ # データ管理モジュール（実装済み）
 │   ├── api_client.py              ✅ # API通信モジュール（実装済み）
 │   └── app.py                     # Gradioアプリケーション
@@ -31,7 +31,7 @@ podscript-ai/
 │   ├── __init__.py                ✅
 │   ├── test_audio_processor.py    ✅ # 音声処理テスト（17テスト全合格）
 │   ├── test_text_processor.py     ✅ # テキスト処理テスト（21テスト全合格）
-│   ├── test_content_generator.py  # コンテンツ生成テスト
+│   ├── test_content_generator.py  ✅ # コンテンツ生成テスト（18テスト全合格）
 │   ├── test_data_manager.py       ✅ # データ管理テスト（11テスト全合格）
 │   ├── test_api_client.py         ✅ # APIクライアントテスト（10テスト全合格）
 │   ├── test_project_setup.py      ✅ # プロジェクト構造テスト（3テスト全合格）
@@ -264,43 +264,69 @@ podscript-ai/
   - カスタム例外クラス（3種類）
 - **コミット**: eb2ba1b feat: Implement Phase 3 text processing functionality
 
-## Phase 4: コンテンツ生成機能 - タイトル（4週目）
+## Phase 4: コンテンツ生成機能 - タイトル（4週目）✅ 完了
 
-### 4.1 タイトル生成基礎
-**作成内容:**
-- GPT API呼び出し実装
-- プロンプトテンプレート
-- 3案生成ロジック
+### 4.1 タイトル生成基礎 ✅
+**完了内容:**
+- ~~GPT API呼び出し実装~~
+- ~~プロンプトテンプレート~~
+- ~~3案生成ロジック~~
+- ~~カスタム例外クラス（3種類）~~
+- ~~エラーハンドリングとリトライ機構~~
+- ~~言語自動検出~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-# test_content_generator.py
-class TestTitleGeneration:
-    def test_generate_titles(self, mocker):
-        """タイトルが3つ生成されることを確認"""
-        
-    def test_prompt_construction(self):
-        """プロンプトが正しく構築されることを確認"""
-        
-    def test_language_handling(self):
-        """出力言語が正しく反映されることを確認"""
+# test_content_generator.py - TestTitleGeneration
+✅ test_generate_titles: タイトルが3つ生成されることを確認
+✅ test_prompt_construction: プロンプトが正しく構築されることを確認
+✅ test_language_handling: 出力言語が正しく反映されることを確認
+✅ test_api_error_handling: APIエラーが適切に処理されることを確認
+✅ test_empty_transcript_handling: 空の文字起こしテキストの処理
+✅ test_malformed_response_handling: 不正なAPIレスポンスの処理
+✅ test_timeout_handling: タイムアウト処理の確認
+✅ test_prompt_too_long: プロンプトが長すぎる場合の処理
+✅ test_title_extraction_edge_cases: タイトル抽出のエッジケース
+# 9/9 テスト合格
 ```
 
-### 4.2 過去データ参照
-**作成内容:**
-- 過去タイトルの読み込み
-- プロンプトへの組み込み
-- 文体学習ロジック
+### 4.2 過去データ参照 ✅
+**完了内容:**
+- ~~過去タイトルの読み込み~~
+- ~~プロンプトへの組み込み~~
+- ~~文体学習ロジック~~
+- ~~履歴エラーのグレースフルハンドリング~~
 
-**テスト内容:**
+**テスト結果:**
 ```python
-class TestTitleWithHistory:
-    def test_load_past_title(self):
-        """過去のタイトルが読み込まれることを確認"""
-        
-    def test_style_learning_prompt(self):
-        """文体学習がプロンプトに含まれることを確認"""
+# test_content_generator.py - TestTitleWithHistory
+✅ test_load_past_titles: 過去のタイトルが読み込まれることを確認
+✅ test_style_learning_prompt: 文体学習がプロンプトに含まれることを確認
+✅ test_no_history_handling: 履歴がない場合の処理
+✅ test_history_limit: 履歴の取得数制限が機能することを確認
+✅ test_history_error_handling: 履歴取得エラーの処理
+# 5/5 テスト合格
+
+# test_content_generator.py - TestContentGeneratorIntegration
+✅ test_complete_title_generation_flow: 完全なタイトル生成フローのテスト
+✅ test_language_auto_detection: 言語自動検出との統合
+✅ test_retry_mechanism_integration: リトライ機構の統合テスト
+✅ test_model_and_parameters: モデルとパラメータが正しく設定されることを確認
+# 4/4 テスト合格
 ```
+
+### Phase 4 成果サマリー
+- **総テスト数**: 18個（全合格）
+- **テストカバレッジ**: 82%（content_generator.py）
+- **実装機能**: 
+  - タイトル3案生成（GPT API統合）
+  - 過去タイトルによる文体学習
+  - 言語自動検出（日本語/英語）
+  - プロンプト長制限（8000文字）
+  - リトライ機構（最大2回）
+  - 複数のタイトル抽出パターン対応
+  - カスタム例外クラス（3種類）
+- **コミット**: [後で追加]
 
 ## Phase 5: コンテンツ生成機能 - 概要欄（5週目）
 
@@ -437,22 +463,25 @@ class TestEndToEnd:
 
 ## 現在までの進捗サマリー
 
-### 累計成果（Phase 1-3）
-- **総テスト数**: 62個（全合格）
+### 累計成果（Phase 1-4）
+- **総テスト数**: 80個（全合格）
   - Phase 1: 24個（API Client: 10, Data Manager: 11, Project Setup: 3）
   - Phase 2: 17個（Audio Validation: 6, Duration: 3, Whisper Integration: 8）
   - Phase 3: 21個（Manuscript: 8, Preprocessing: 7, Language: 4, Integration: 2）
-- **テストカバレッジ**: 91%（全体）
+  - Phase 4: 18個（Title Generation: 9, History: 5, Integration: 4）
+- **テストカバレッジ**: 89%（全体）
   - api_client.py: 88%
   - data_manager.py: 85%
   - audio_processor.py: 99%
   - text_processor.py: 93%
-- **実装モジュール**: 4個
+  - content_generator.py: 82%
+- **実装モジュール**: 5個
   - api_client.py（シングルトン、リトライ機構）
   - data_manager.py（JSON永続化、履歴管理）
   - audio_processor.py（ファイル検証、Whisper統合）
   - text_processor.py（原稿処理、前処理、言語検出）
-- **開発期間**: 3週間相当の作業を完了
+  - content_generator.py（タイトル生成、文体学習）
+- **開発期間**: 4週間相当の作業を完了
 
 ## 使用技術スタック
 
