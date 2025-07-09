@@ -868,7 +868,7 @@ Internet of Things（IoT）技術は、あらゆるデバイスをインター�
         assert h3_count >= 0  # Optional subheadings
     
     def test_word_count_range(self, content_generator, mocker):
-        """1000-2000文字の範囲内であることを確認"""
+        """800-2000文字の範囲内であることを確認"""
         # Create content with specific length
         test_content = "# タイトル\n\n" + "これはテストコンテンツです。" * 100
         
@@ -885,9 +885,9 @@ Internet of Things（IoT）技術は、あらゆるデバイスをインター�
         
         blog_post = content_generator.generate_blog_post("Test transcript")
         
-        # Check character count (1000-2000 characters)
+        # Check character count (800-2000 characters)
         char_count = len(blog_post)
-        assert 1000 <= char_count <= 2000
+        assert 800 <= char_count <= 2000
     
     def test_prompt_construction_for_blog(self, content_generator):
         """ブログ記事用プロンプトが正しく構築されることを確認"""
@@ -901,7 +901,7 @@ Internet of Things（IoT）技術は、あらゆるデバイスをインター�
         assert transcript in prompt
         assert "blog" in prompt.lower() or "article" in prompt.lower()
         assert "markdown" in prompt.lower()
-        assert "1000-2000" in prompt or "1000" in prompt
+        assert "800-2000" in prompt or "800" in prompt
     
     def test_language_handling_for_blog(self, content_generator, mocker):
         """ブログ記事の出力言語が正しく反映されることを確認"""
@@ -1141,7 +1141,7 @@ AIは私たちの仕事や生活を大きく変える可能性を秘めていま
         
         # Verify
         assert isinstance(blog_post, str)
-        assert 1000 <= len(blog_post) <= 2000
+        assert 800 <= len(blog_post) <= 2000
         assert blog_post.strip()
         assert "#" in blog_post  # Has headers
         assert "##" in blog_post  # Has subheaders

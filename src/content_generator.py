@@ -570,7 +570,7 @@ Generate a podcast episode description {language_instruction} from the following
             include_history: Whether to include past blog posts for style learning
             
         Returns:
-            Blog post text in Markdown format (1000-2000 characters)
+            Blog post text in Markdown format (800-2000 characters)
             
         Raises:
             ValueError: If transcript is empty
@@ -610,9 +610,9 @@ Generate a podcast episode description {language_instruction} from the following
             self.DEFAULT_MAX_TOKENS = old_max_tokens
             
             # Validate length
-            if len(blog_post) < 1000:
+            if len(blog_post) < 800:
                 raise ContentGenerationError(
-                    f"Blog post too short: {len(blog_post)} characters (min: 1000)"
+                    f"Blog post too short: {len(blog_post)} characters (min: 800)"
                 )
             if len(blog_post) > 2000:
                 raise ContentGenerationError(
@@ -648,7 +648,7 @@ Generate a podcast episode description {language_instruction} from the following
 Generate a blog post {language_instruction} from the following podcast transcript.
 
 要件:
-- 1000-2000文字の範囲で作成
+- 800-2000文字の範囲で作成
 - Markdown形式で出力
 - 見出し構造を含む（#, ##, ### を使用）
 - 導入部、主要トピック、まとめを含む
