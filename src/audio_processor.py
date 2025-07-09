@@ -156,7 +156,7 @@ class AudioProcessor:
         """
         return duration <= self.max_duration
     
-    def transcribe(self, file_path: str, language: Optional[str] = None) -> str:
+    def transcribe_audio(self, file_path: str, language: Optional[str] = None) -> str:
         """
         Transcribe audio file using Whisper API
         

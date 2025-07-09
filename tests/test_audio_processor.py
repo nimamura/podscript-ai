@@ -172,7 +172,7 @@ class TestWhisperIntegration:
         audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
-            result = audio_processor.transcribe('test.mp3')
+            result = audio_processor.transcribe_audio('test.mp3')
             
         assert result == "これはテスト音声の内容です。"
         audio_processor.api_client.audio.transcriptions.create.assert_called_once()
@@ -186,7 +186,7 @@ class TestWhisperIntegration:
         audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
-            result = audio_processor.transcribe('test.mp3', language='en')
+            result = audio_processor.transcribe_audio('test.mp3', language='en')
             
         # Check that language parameter was passed
         call_args = audio_processor.api_client.audio.transcriptions.create.call_args
@@ -201,7 +201,7 @@ class TestWhisperIntegration:
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             with pytest.raises(AudioProcessingError) as exc_info:
-                audio_processor.transcribe('test.mp3')
+                audio_processor.transcribe_audio('test.mp3')
             assert "Transcription failed" in str(exc_info.value)
     
     def test_transcribe_timeout(self, audio_processor, mock_file_validation,
@@ -212,7 +212,7 @@ class TestWhisperIntegration:
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             with pytest.raises(AudioProcessingError) as exc_info:
-                audio_processor.transcribe('test.mp3')
+                audio_processor.transcribe_audio('test.mp3')
             assert "Request timed out" in str(exc_info.value)
     
     def test_transcribe_empty_audio(self, audio_processor, mock_file_validation,
@@ -224,7 +224,7 @@ class TestWhisperIntegration:
         audio_processor.api_client.audio.transcriptions.create.return_value = mock_response
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
-            result = audio_processor.transcribe('test.mp3')
+            result = audio_processor.transcribe_audio('test.mp3')
             
         assert result == ""
     
@@ -242,7 +242,7 @@ class TestWhisperIntegration:
         
         with patch('builtins.open', mock_open(read_data=b'fake audio data')):
             with patch('time.sleep'):  # Mock sleep to speed up test
-                result = audio_processor.transcribe('test.mp3')
+                result = audio_processor.transcribe_audio('test.mp3')
                 
         assert result == "Success after retry"
         assert audio_processor.api_client.audio.transcriptions.create.call_count == 2
@@ -254,7 +254,7 @@ class TestWhisperIntegration:
             mock_validate.side_effect = InvalidFileFormatError("Invalid format")
             
             with pytest.raises(InvalidFileFormatError):
-                audio_processor.transcribe('test.txt')
+                audio_processor.transcribe_audio('test.txt')
     
     def test_transcribe_duration_validation_fails(self, audio_processor, mock_file_validation):
         """音声長さ検証失敗時の処理"""
@@ -262,5 +262,5 @@ class TestWhisperIntegration:
         with patch.object(AudioProcessor, 'get_audio_duration', return_value=7500):  # 125 min
             with patch.object(AudioProcessor, 'validate_duration', return_value=False):
                 with pytest.raises(DurationError) as exc_info:
-                    audio_processor.transcribe('test.mp3')
+                    audio_processor.transcribe_audio('test.mp3')
                 assert "Audio duration exceeds limit" in str(exc_info.value)
