@@ -142,6 +142,27 @@ class DataManager:
         
         return titles[:limit]
     
+    def get_recent_descriptions(self, limit: int = 5) -> List[str]:
+        """
+        Get recent descriptions for style learning
+        
+        Args:
+            limit: Number of descriptions to return
+            
+        Returns:
+            List of recent descriptions
+        """
+        histories = self.get_all_histories()
+        descriptions = []
+        
+        for history in histories:
+            if 'description' in history and history['description']:
+                descriptions.append(history['description'])
+                if len(descriptions) >= limit:
+                    break
+        
+        return descriptions[:limit]
+    
     def export_histories(self, export_path: str) -> None:
         """
         Export all histories to a single file

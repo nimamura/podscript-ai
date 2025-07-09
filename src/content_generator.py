@@ -362,3 +362,195 @@ Generate 3 attractive podcast titles {language_instruction} from the following t
             return 'ja'
         else:
             return 'en'
+    
+    def generate_description(
+        self,
+        transcript: str,
+        language: Optional[str] = 'ja',
+        include_history: bool = False
+    ) -> str:
+        """
+        Generate description for the podcast episode
+        
+        Args:
+            transcript: Transcribed text from podcast
+            language: Output language ('ja', 'en', or None for auto-detect)
+            include_history: Whether to include past descriptions for style learning
+            
+        Returns:
+            Description text (200-400 characters)
+            
+        Raises:
+            ValueError: If transcript is empty
+            ContentGenerationError: If generation fails or description is invalid length
+        """
+        # Validate transcript
+        if not transcript or not transcript.strip():
+            raise ValueError("Transcript cannot be empty")
+        
+        # Check transcript length
+        if len(transcript) > self.MAX_TRANSCRIPT_LENGTH:
+            raise PromptTooLongError(
+                f"Transcript too long: {len(transcript)} characters "
+                f"(max: {self.MAX_TRANSCRIPT_LENGTH})"
+            )
+        
+        # Auto-detect language if not specified
+        if language is None:
+            language = self._detect_language(transcript)
+        
+        # Build prompt
+        if include_history:
+            prompt = self._build_description_prompt_with_history(transcript, language, include_history)
+        else:
+            prompt = self._build_description_prompt(transcript, language)
+        
+        # Generate description with retry
+        try:
+            response = self._generate_with_retry(prompt)
+            description = self._extract_description_from_response(response)
+            
+            # Validate length
+            if len(description) < 200:
+                raise ContentGenerationError(
+                    f"Description too short: {len(description)} characters (min: 200)"
+                )
+            if len(description) > 400:
+                raise ContentGenerationError(
+                    f"Description too long: {len(description)} characters (max: 400)"
+                )
+            
+            return description
+            
+        except TimeoutError as e:
+            raise ContentGenerationError(f"Request timeout: {e}")
+        except ContentGenerationError:
+            raise
+        except Exception as e:
+            raise ContentGenerationError(f"Failed to generate description: {e}")
+    
+    def _build_description_prompt(self, transcript: str, language: str) -> str:
+        """
+        Build prompt for description generation
+        
+        Args:
+            transcript: Podcast transcript
+            language: Output language
+            
+        Returns:
+            Formatted prompt
+        """
+        language_instruction = {
+            'ja': "日本語で",
+            'en': "in English"
+        }.get(language, language)
+        
+        prompt = f"""
+Generate a podcast episode description {language_instruction} from the following transcript.
+
+要件:
+- 200-400文字の範囲で作成
+- 導入部分：エピソードの概要を簡潔に紹介
+- 中間部分：主な内容やトピックを説明
+- 締め部分：リスナーへの呼びかけやメリット
+- 魅力的で聞きたくなる内容
+
+文字起こし / Transcript:
+{transcript}
+
+概要欄 / Description:
+"""
+        return prompt.strip()
+    
+    def _build_description_prompt_with_history(
+        self,
+        transcript: str,
+        language: str,
+        include_history: bool = True
+    ) -> str:
+        """
+        Build prompt with past descriptions for style learning
+        
+        Args:
+            transcript: Podcast transcript
+            language: Output language
+            include_history: Whether to include history
+            
+        Returns:
+            Formatted prompt with style examples
+        """
+        # Get base prompt
+        base_prompt = self._build_description_prompt(transcript, language)
+        
+        if not include_history:
+            return base_prompt
+        
+        # Get past descriptions
+        try:
+            past_descriptions = self._get_past_descriptions(limit=3)
+        except Exception as e:
+            logger.warning(f"Failed to get past descriptions: {e}")
+            # Continue without history
+            return base_prompt
+        
+        if not past_descriptions:
+            return base_prompt
+        
+        # Add style learning section
+        style_section = "\\n\\n過去の概要欄例（文体の参考に）:\\n"
+        for i, desc in enumerate(past_descriptions, 1):
+            style_section += f"{i}. {desc}\\n"
+        
+        style_instruction = "\\n上記の過去の概要欄の文体やスタイルを参考にしてください。"
+        
+        # Insert style section before the requirements
+        parts = base_prompt.split("\\n要件:")
+        if len(parts) == 2:
+            prompt = parts[0] + style_section + style_instruction + "\\n要件:" + parts[1]
+        else:
+            # Fallback: append at the beginning
+            prompt = style_section + style_instruction + "\\n\\n" + base_prompt
+        
+        return prompt
+    
+    def _get_past_descriptions(self, limit: int = 3) -> List[str]:
+        """
+        Get past descriptions from data manager
+        
+        Args:
+            limit: Maximum number of descriptions to retrieve
+            
+        Returns:
+            List of past descriptions
+        """
+        return self.data_manager.get_recent_descriptions(limit=limit)
+    
+    def _extract_description_from_response(self, response: Any) -> str:
+        """
+        Extract description from API response
+        
+        Args:
+            response: API response object
+            
+        Returns:
+            Extracted description text
+            
+        Raises:
+            APIResponseError: If response format is invalid
+        """
+        try:
+            content = response.choices[0].message.content
+            
+            # Clean up the description
+            description = content.strip()
+            
+            # Remove any quotes if wrapped
+            if description.startswith('"') and description.endswith('"'):
+                description = description[1:-1]
+            
+            return description
+            
+        except AttributeError:
+            raise APIResponseError("Invalid response structure")
+        except Exception as e:
+            raise APIResponseError(f"Failed to parse response: {e}")
